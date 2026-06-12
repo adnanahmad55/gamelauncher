@@ -34,25 +34,25 @@ export const games = [
     base_url: "https://poker.bestcode.site",
     game_icon: "/images/poker.png"
   },
-  {
-    name: "7 UpDown",
-    game_code: "MZ020108",
-    opr_id: "250201",
-    base_url: "https://euro.bestcode.site",
-    game_icon: "/images/seven_up_down.png"
-  },
-  {
-    name: "Wingo",
-    game_code: "MZ020105",
-    opr_id: "250201",
-    base_url: "https://wingo.bestcode.site",
-    game_icon: "/images/wingo.png"
-  },
-  {
-    name: "All in Poker",
-    game_code: "MZ020116",
-    opr_id: "250201",
-    base_url: "https://allinpoker.bestcode.site",
-    game_icon: "/images/all_in_poker.png"
-  }
+  // {
+  //   name: "7 UpDown",
+  //   game_code: "MZ020108",
+  //   opr_id: "250201",
+  //   base_url: "https://euro.bestcode.site",
+  //   game_icon: "/images/seven_up_down.png"
+  // },
+  // {
+  //   name: "Wingo",
+  //   game_code: "MZ020105",
+  //   opr_id: "250201",
+  //   base_url: "https://wingo.bestcode.site",
+  //   game_icon: "/images/wingo.png"
+  // },
+  // {
+  //   name: "All in Poker",
+  //   game_code: "MZ020116",
+  //   opr_id: "250201",
+  //   base_url: "https://allinpoker.bestcode.site",
+  //   game_icon: "/images/all_in_poker.png"
+  // }
 ];
