@@ -13,6 +13,8 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [isDark, setIsDark] = useState(true);
 
+  const [generatedLinkData, setGeneratedLinkData] = useState(null);
+
   // Toggle dark mode
   useEffect(() => {
     if (isDark) {
@@ -40,34 +42,35 @@ function App() {
   const handlePlay = async (game) => {
     if (!selectedUser) {
       toast.error('Please select a username first to play!');
-      // Scroll to top where user section is
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
     const toastId = toast.loading('Generating launch link...');
     try {
-      // The current generateLinks endpoint returns links for ALL games.
-      // We just pick the one the user clicked.
       const allLinks = await generateLinks(selectedUser);
       const gameLink = allLinks.find(l => l.name === game.name);
       
       if (gameLink) {
         toast.dismiss(toastId);
-        
-        // Copy and open
-        navigator.clipboard.writeText(gameLink.link);
-        toast.success(`Copied link for ${game.name}! Redirecting...`, { duration: 2000 });
-        
-        setTimeout(() => {
-          window.open(gameLink.link, '_blank');
-        }, 1000);
-
+        toast.success(`Link generated for ${game.name}!`);
+        // Show modal instead of auto redirect
+        setGeneratedLinkData({
+          name: game.name,
+          link: gameLink.link
+        });
       } else {
         toast.error('Game link not found', { id: toastId });
       }
     } catch (error) {
       toast.error(error.response?.data?.error || 'Failed to generate link', { id: toastId });
+    }
+  };
+
+  const handleCopyLink = () => {
+    if (generatedLinkData) {
+      navigator.clipboard.writeText(generatedLinkData.link);
+      toast.success('Link copied to clipboard!');
     }
   };
 
@@ -118,6 +121,45 @@ function App() {
           </div>
         )}
       </div>
+
+      {/* Generated Link Modal */}
+      {generatedLinkData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-200 dark:border-gray-700 transform transition-all">
+            <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
+              Link Ready: {generatedLinkData.name}
+            </h3>
+            
+            <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg mb-6 border border-gray-200 dark:border-gray-700 break-all text-sm text-gray-600 dark:text-gray-400">
+              {generatedLinkData.link}
+            </div>
+            
+            <div className="flex gap-3 justify-end">
+              <button 
+                onClick={() => setGeneratedLinkData(null)}
+                className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors font-medium"
+              >
+                Close
+              </button>
+              <button 
+                onClick={handleCopyLink}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+              >
+                Copy Link
+              </button>
+              <a 
+                href={generatedLinkData.link}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => setGeneratedLinkData(null)}
+                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium inline-block"
+              >
+                Play Now
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
