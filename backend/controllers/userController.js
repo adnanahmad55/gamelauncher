@@ -24,11 +24,14 @@ const saveUsers = async (users) => {
 
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await getUsers();
-    res.json(users);
+    const data = await fs.readFile(usersFilePath, 'utf8');
+    res.json(JSON.parse(data));
   } catch (error) {
-    console.error('Error getting users:', error);
-    res.status(500).json({ error: 'Failed to retrieve users' });
+    // If file doesn't exist (e.g. on live server where it's ignored by git), return empty array
+    if (error.code === 'ENOENT') {
+      return res.json([]);
+    }
+    res.status(500).json({ error: 'Failed to read users' });
   }
 };
 
@@ -39,15 +42,24 @@ export const addUser = async (req, res) => {
       return res.status(400).json({ error: 'Username is required' });
     }
 
-    const users = await getUsers();
-    
-    // check if user already exists
-    if (!users.includes(username)) {
-      users.push(username);
-      await saveUsers(users);
+    let users = [];
+    try {
+      const data = await fs.readFile(usersFilePath, 'utf8');
+      users = JSON.parse(data);
+    } catch (err) {
+      // Ignore if file doesn't exist, we will create it
+      if (err.code !== 'ENOENT') throw err;
     }
 
-    res.status(201).json({ message: 'User saved successfully', username });
+    if (!users.includes(username)) {
+      users.push(username);
+      
+      // Ensure the data directory exists before writing
+      await fs.mkdir(path.dirname(usersFilePath), { recursive: true });
+      await fs.writeFile(usersFilePath, JSON.stringify(users, null, 2));
+    }
+    
+    res.status(201).json({ message: 'User added successfully' });
   } catch (error) {
     console.error('Error saving user:', error);
     res.status(500).json({ error: 'Failed to save user' });
